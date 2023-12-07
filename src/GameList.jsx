@@ -13,10 +13,13 @@ const StyledButton = styled.button`
   font-size: 24px;
   position: relative;
   overflow: hidden;
+  transition: transform 0.3s ease-in-out, background-size 0.3s ease-in-out; /* Add transition effect for smooth scaling */
 
   &:hover {
-    background-size: 200px 200px; /* Size remains unchanged on hover */
+    transform: scale(1.1); /* Scale the button on hover */
+    background-size: 220px 220px; /* Increase the background image size on hover */
   }
+
 
   span {
     position: absolute;
@@ -166,21 +169,23 @@ const GameList = ({ updateGameSettings, username }) => {
         </label>
       </div>
       <button
-        type="button"
-        onClick={handleStartGame}
-        style={{
-          marginTop: '20px',
-          padding: '10px 20px',
-          fontSize: '16px',
-          backgroundColor: 'black',
-          color: 'white',
-          border: 'none',
-          borderRadius: '5px',
-          cursor: 'pointer',
-        }}
-      >
-        Start Game
-      </button>
+  type="button"
+  onClick={handleStartGame}
+  style={{
+    marginTop: '20px',
+    padding: '10px 20px',
+    fontSize: '16px',
+    backgroundColor: 'black',
+    color: 'white',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    transition: 'transform 0.3s ease-in-out', /* Add transition effect */
+  }}
+  className="start-game-button"
+>
+  Start Game
+</button>
 
       <div style={{ marginTop: '40px', textAlign: 'center' }}>
         <h3 style={{ color: '#211F20', fontSize: '24px' }}>Created Games</h3>

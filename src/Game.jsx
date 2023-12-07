@@ -1,22 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import GameBoard from "./GameBoard";
 
-
+// Game component handling the Tic-Tac-Toe game
 const Game = ({ gameSettings, createdGames, setCreatedGames, userName }) => {
   const navigate = useNavigate();
   const { size, backgroundColor } = gameSettings;
 
+  // State variables for the game board, player turn, winner, and previous winner
   const [board, setBoard] = useState([]);
   const [playerTurn, setPlayerTurn] = useState(true);
   const [winner, setWinner] = useState(null);
   const [previousWinner, setPreviousWinner] = useState(null);
 
-  
-
+  // Effect to handle navigation on game end
   useEffect(() => {
-    if (winner === "Berabere") {
+    if (winner === "Draw") {
       setTimeout(() => {
         navigate("/game");
       }, 2000);
@@ -27,10 +26,12 @@ const Game = ({ gameSettings, createdGames, setCreatedGames, userName }) => {
     }
   }, [winner]);
 
+  // Effect to initialize the game board
   useEffect(() => {
     initializeBoard();
   }, [size]);
 
+  // Function to initialize the game board
   const initializeBoard = () => {
     const newBoard = Array.from({ length: size }, () =>
       Array.from({ length: size }, () => null)
@@ -39,6 +40,7 @@ const Game = ({ gameSettings, createdGames, setCreatedGames, userName }) => {
     setWinner(null);
   };
 
+  // Function to render the game board
   const renderBoard = () => {
     return board.map((row, rowIndex) => (
       <div key={rowIndex} style={styles.row}>
@@ -46,7 +48,6 @@ const Game = ({ gameSettings, createdGames, setCreatedGames, userName }) => {
           <StyledCell
             key={cellIndex}
             onClick={() => handleCellClick(rowIndex, cellIndex)}
-            backgroundImage={getBackgroundImage(rowIndex, cellIndex)}
             backgroundColor={backgroundColor}
           >
             {cell === "X" || cell === "O" ? (
@@ -60,17 +61,16 @@ const Game = ({ gameSettings, createdGames, setCreatedGames, userName }) => {
     ));
   };
 
-  const getBackgroundImage = (row, col) => {
-    return (row + col) % 2 === 0 ? "" : "";
-  };
-
+  // Function to handle cell click during the game
   const handleCellClick = (row, col) => {
+    // Check if cell is empty and it's the player's turn
     if (board[row][col] === null && playerTurn && winner === null) {
       const updatedBoard = [...board];
       updatedBoard[row][col] = "X";
       setBoard(updatedBoard);
       setPlayerTurn(false);
       checkWinner(updatedBoard);
+      // If there's no winner yet, let the computer make a move
       if (!winner) {
         setTimeout(() => {
           makeComputerMove(updatedBoard);
@@ -79,6 +79,7 @@ const Game = ({ gameSettings, createdGames, setCreatedGames, userName }) => {
     }
   };
 
+  // Function to handle the computer's move
   const makeComputerMove = (currentBoard) => {
     const updatedBoard = currentBoard.map((row) => [...row]);
     let row, col;
@@ -92,7 +93,11 @@ const Game = ({ gameSettings, createdGames, setCreatedGames, userName }) => {
     setPlayerTurn(true);
     checkWinner(updatedBoard);
   };
+  // Function to check for a winner
   const checkWinner = (currentBoard) => {
+    // Function to check if all cells in a line are the same
+    // and not null, determining a winner
+    // (Checking rows, columns, and diagonals)
     const checkLine = (line) => {
       if (line.every((cell) => cell === line[0] && cell !== null)) {
         setWinner(line[0]);
@@ -143,26 +148,37 @@ const Game = ({ gameSettings, createdGames, setCreatedGames, userName }) => {
   };
 
   const handleRestart = () => {
-    setPreviousWinner(winner);
-    initializeBoard();
-    setTimeout(() => {
+    let message;
+    if (winner === "Draw") {
+      message = "Game ended in a draw!";
+    } else {
+      message = winner === "X" ? `${userName} won!` : "Computer won!";
+    }
+
+    const confirmation = window.confirm(message);
+
+    if (confirmation) {
+      setPreviousWinner(winner);
+      initializeBoard();
       navigate("/game-list");
-    }, 2000);
+    }
   };
 
   useEffect(() => {
-    if (winner === "Berabere" || winner) {
+    if (winner === "Draw" || winner) {
       setTimeout(() => {
         handleRestart();
       }, 2000);
     }
   }, [winner]);
 
+
+  // JSX layout for the game area
   return (
     <div style={{ minHeight: "100vh", backgroundColor: backgroundColor }}>
       <div style={styles.container}>
         <h2 style={styles.title}>
-          Oyun Alanı ({size}x{size})
+          Game Area ({size}x{size})
         </h2>
         {winner ? (
           <div>
@@ -170,9 +186,8 @@ const Game = ({ gameSettings, createdGames, setCreatedGames, userName }) => {
               {winner === "X"
                 ? userName
                 : winner === "O"
-                ? "Bilgisayar"
-                : "Berabere"}{" "}
-              oyuncu kazandı!
+                ? "Computer"
+                : "Draw"}{" "}
             </h3>
           </div>
         ) : (
@@ -182,11 +197,11 @@ const Game = ({ gameSettings, createdGames, setCreatedGames, userName }) => {
           <div>
             <h4>
               {previousWinner === "X"
-                ? "Oyuncu"
+                ? "Player"
                 : previousWinner === "O"
-                ? "Bilgisayar"
-                : "Berabere"}{" "}
-              önceki oyunu kazandı!
+                ? "Computer"
+                : "Draw"}{" "}
+              won the previous game!
             </h4>
           </div>
         )}
@@ -194,6 +209,7 @@ const Game = ({ gameSettings, createdGames, setCreatedGames, userName }) => {
     </div>
   );
 };
+
 
 
 const StyledCell = styled.div`
@@ -211,11 +227,11 @@ const StyledCell = styled.div`
   transition: background-color 0.3s ease-in-out;
 
   &:hover {
-    background-color: gray; /* İlgili hover rengini buraya ekleyin */
+    background-color: #999;
   }
 
   span {
-    font-size: 28px; /* Font size of 'X' and 'O' */
+    font-size: 28px;
   }
 `;
 
@@ -230,11 +246,11 @@ const styles = {
     justifyContent: "center",
     alignItems: "center",
     minHeight: "100vh",
-    background: "linear-gradient(180deg, #f7f7f7 0%, #ececec 100%)",
-    backgroundImage: "url('https://www.shutterstock.com/shutterstock/photos/2253105475/display_1500/stock-vector-seamless-valentine-s-day-xoxo-pattern-black-and-white-vector-2253105475.jpg')",
+    background: "background-image: linear-gradient( 111.4deg,  rgba(238,113,113,1) 1%, rgba(246,215,148,1) 58% );",
+    backgroundImage: "url('')",
     backgroundSize: "cover",
     backgroundPosition: "center",
-    // This closing curly brace should be placed at the end of the styles object
+    
   },
   title: {
     fontSize: "25px",
@@ -255,4 +271,13 @@ const styles = {
   },
 };
 
+
 export default Game;
+
+
+
+
+
+
+
+

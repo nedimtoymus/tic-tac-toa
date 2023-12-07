@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import Game from './Game'; 
+import Game from './Game';
 
+// Styled button component created using styled-components
 const StyledButton = styled.button`
   width: 200px;
   height: 200px;
   margin-right: 10px;
   border-radius: 10px;
-  background-size: cover;
+  background-size: 200px 200px; /* Locks the image size to the button size */
   font-size: 24px;
   position: relative;
   overflow: hidden;
 
   &:hover {
-    opacity: 0.8;
+    background-size: 200px 200px; /* Size remains unchanged on hover */
   }
 
   span {
@@ -30,60 +31,61 @@ const StyledButton = styled.button`
   }
 `;
 
-
-
-
-
-
 const GameList = ({ updateGameSettings, username }) => {
   const navigate = useNavigate();
- 
 
+  // State variables to manage game size, background color, and created games
   const [gameSize, setGameSize] = useState(3);
   const [backgroundColor, setBackgroundColor] = useState('#FFFFFF');
   const [createdGames, setCreatedGames] = useState([]);
 
+  // Load user preferences and created games from localStorage on component mount
   useEffect(() => {
     const storedGameSize = localStorage.getItem('gameSize');
     const storedBackgroundColor = localStorage.getItem('backgroundColor');
     const storedGames = JSON.parse(localStorage.getItem('createdGames')) || [];
 
+    // Set game size and background color if available in localStorage
     if (storedGameSize && storedBackgroundColor) {
       setGameSize(parseInt(storedGameSize));
       setBackgroundColor(storedBackgroundColor);
     }
 
+    // Set created games if available in localStorage
     if (storedGames.length > 0) {
       setCreatedGames(storedGames);
     }
   }, []);
 
+  // Function to handle changes in the game size
   const handleGameSizeChange = (size) => {
     setGameSize(size);
   };
 
+  // Function to handle changes in the background color
   const handleBackgroundColorChange = (color) => {
     setBackgroundColor(color);
   };
 
+  // Save user preferences in localStorage
   const saveUserPreferences = () => {
     localStorage.setItem('gameSize', gameSize);
     localStorage.setItem('backgroundColor', backgroundColor);
   };
 
+  // Function to initiate the game and navigate to the Game component
   const handleStartGame = () => {
     let newSize = gameSize;
     if (gameSize === 9) {
-      newSize = 7; // 9x9'u 7x7'ye değiştir
+      newSize = 7; // Adjusting the size to 7x7 for a 9x9 grid
     }
     updateGameSettings(newSize, backgroundColor);
     saveUserPreferences();
     addCreatedGame(newSize, backgroundColor);
-    navigate("/game", { state: { backgroundColor } }); // 'Game' bileşenine backgroundColor'ı props olarak iletiyoruz.
+    navigate("/game", { state: { backgroundColor } });
   };
-  
-  
 
+  // Function to add a created game to the list
   const addCreatedGame = (size, color) => {
     const newGame = {
       size: size,
@@ -110,7 +112,7 @@ const GameList = ({ updateGameSettings, username }) => {
         backgroundPosition: 'center',
       }}
     >
-      <h2 style={{ color: '#211F20', fontSize: '28px', margin: 0 }}>Tic-Tac-Toe Oyun Seçimi</h2>
+      <h2 style={{ color: '#211F20', fontSize: '28px', margin: 0 }}>Tic-Tac-Toe Game Selection</h2>
       <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}>
         <StyledButton
           type="button"
@@ -145,7 +147,7 @@ const GameList = ({ updateGameSettings, username }) => {
       </div>
       <div style={{ marginTop: '20px' }}>
         <label style={{ marginRight: '10px', fontSize: '18px', fontWeight: 'bold' }}>
-          Arka Plan Rengi:
+          Background Color:
           <input
             type="color"
             value={backgroundColor}
@@ -177,16 +179,16 @@ const GameList = ({ updateGameSettings, username }) => {
           cursor: 'pointer',
         }}
       >
-        Oyuna Başla
+        Start Game
       </button>
 
       <div style={{ marginTop: '40px', textAlign: 'center' }}>
-        <h3 style={{ color: '#211F20', fontSize: '24px' }}>Oluşturulan Oyunlar</h3>
+        <h3 style={{ color: '#211F20', fontSize: '24px' }}>Created Games</h3>
         <ul style={{ listStyle: 'none', padding: 0 }}>
           {createdGames.map((game, index) => (
             <li key={index} style={{ marginBottom: '10px' }}>
-              <p>Oyun {index + 1} - Boyut: {game.size}, Arka Plan Rengi: {game.backgroundColor}</p>
-              {/* Gerekliyse oyun verilerini buraya ekleyin */}
+              <p>Game {index + 1} - Size: {game.size}, Background Color: {game.backgroundColor}</p>
+              {/* Add game data here if necessary */}
             </li>
           ))}
         </ul>
